@@ -128,66 +128,103 @@ void dezalocareMemorie(struct Pahar* v, int j)
 
 }
 
+void citireDinFisier(FILE* f, struct Pahar* vector_t3)
+{
+	char material[100];
+
+	for (int i = 0; i < 10; i++) {
+		fscanf_s(f, "%f %f %f", &vector_t3[i].ldi[0], &vector_t3[i].ldi[1], &vector_t3[i].ldi[2]);
+		fscanf_s(f, "%s", material, sizeof(material));
+		vector_t3[i].material = (char*)malloc(sizeof(char) * strlen(material) + 1);
+		strcpy(vector_t3[i].material, material);
+		fscanf_s(f, "%f %d", &vector_t3[i].pret, &vector_t3[i].cod);
+	}
+}
+
+void salvareObiectInFisier()
+{
+	// adaugare la finalul fisierului elementul primit ca parametru
+}
+
 void main()
 {
-	struct Pahar p;
-	float v, pret;
+	//struct Pahar p;
+	//float v, pret;
 
-	printf(" --- (Task 1) --- \n");
+	//printf(" --- (Task 1) --- \n"); //------------------------------------------------------------------------
 
-	p = citire();
-	//&v = the adress of v (pointer to a memory zone), wich is passed as a parameter
-	volum(p, &v);
-	printf("Volum pahar: %.2f\n\n", v);
+	//p = citire();
+	////&v = the adress of v (pointer to a memory zone), wich is passed as a parameter
+	//volum(p, &v);
+	//printf("Volum pahar: %.2f\n\n", v);
 
-	printf("Noul pret: ");
-	scanf_s("%f", &pret);
-	printf("Datele modificate: \n");
-	modificarePret(&p, pret);
+	//printf("Noul pret: ");
+	//scanf_s("%f", &pret);
+	//printf("Datele modificate: \n");
+	//modificarePret(&p, pret);
 
-	afisare(p);
-
-
-	printf(" --- (Task 2) --- \n");
-
-	struct Pahar* vector;
-	struct Pahar* vpp;
-	struct Pahar m[10];
-	int j, n, k, l;
-
-	printf("Introduceti cate elemente sa contina vectorul - maxim 10: ");
-	scanf_s("%d", &n);
-
-	vector = (struct Pahar*)malloc(sizeof(struct Pahar) * n);
+	//afisare(p);
 
 
-	for (int i = 0; i < n; i++)
-		vector[i] = citire();
+	//printf(" --- (Task 2) --- \n"); //------------------------------------------------------------------------
 
-	vpp = creeareVectorPaharePlastic(vector, n, &j);
-	printf("afisare vector pahare plastic: ---------- \n");
-	afisareVector(vector, j);
-	printf("\n");
+	//struct Pahar* vector;
+	//struct Pahar* vpp;
+	//struct Pahar m[10];
+	//int j, n, k, l;
 
-	mutareInAltVector(vector, n, m, &k);
-	printf("afisare vector mutat: ---------- \n");
-	afisareVector(m, k);
-	printf("\n");
+	//printf("Introduceti cate elemente sa contina vectorul - maxim 10: ");
+	//scanf_s("%d", &n);
 
-	struct Pahar concat[10];
-	concatenareVectori(vpp, j, m, k, concat, &l);
-	printf("afisare vector concatenat: ---------- \n");
-	afisareVector(concat, l);
+	//vector = (struct Pahar*)malloc(sizeof(struct Pahar) * n);
 
-	free(p.material);
 
-	dezalocareMemorie(vector, n);
-	free(vector);
+	//for (int i = 0; i < n; i++)
+	//	vector[i] = citire();
 
-	dezalocareMemorie(vpp, j);
+	//vpp = creeareVectorPaharePlastic(vector, n, &j);
+	//printf("afisare vector pahare plastic: ---------- \n");
+	//afisareVector(vector, j);
+	//printf("\n");
 
-	dezalocareMemorie(m, k);
+	//mutareInAltVector(vector, n, m, &k);
+	//printf("afisare vector mutat: ---------- \n");
+	//afisareVector(m, k);
+	//printf("\n");
 
-	dezalocareMemorie(concat, l);
-	//free citire, creare, mutare, concatenare/copiere
+	//struct Pahar concat[10];
+	//concatenareVectori(vpp, j, m, k, concat, &l);
+	//printf("afisare vector concatenat: ---------- \n");
+	//afisareVector(concat, l);
+
+	//free(p.material);
+
+	//dezalocareMemorie(vector, n);
+	//free(vector);
+
+	//dezalocareMemorie(vpp, j);
+
+	//dezalocareMemorie(m, k);
+
+	//dezalocareMemorie(concat, l);
+	////free citire, creare, mutare, concatenare/copiere
+
+	printf("--- Task 3 ---\n"); //------------------------------------------------------------------------
+
+	int x;
+	struct Pahar vector_t3[10];
+
+	FILE* f = fopen("obiecte.txt", "r");
+	if (f == NULL) {
+		printf("Eroare deschidere fisier!");
+	}
+	else {
+		printf("Fisier deschis!");
+		printf("!\n");
+		citireDinFisier(f, vector_t3);
+		afisareVector(vector_t3, 10);
+
+		fclose(f);
+	}
+	
 }
