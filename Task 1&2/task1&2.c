@@ -128,11 +128,11 @@ void dezalocareMemorie(struct Pahar* v, int j)
 
 }
 
-void citireDinFisier(FILE* f, struct Pahar* vector_t3)
+void citireDinFisier(FILE* f, struct Pahar* vector_t3, int n)
 {
 	char material[100];
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < n; i++) {
 		fscanf_s(f, "%f %f %f", &vector_t3[i].ldi[0], &vector_t3[i].ldi[1], &vector_t3[i].ldi[2]);
 		fscanf_s(f, "%s", material, sizeof(material));
 		vector_t3[i].material = (char*)malloc(sizeof(char) * strlen(material) + 1);
@@ -141,9 +141,27 @@ void citireDinFisier(FILE* f, struct Pahar* vector_t3)
 	}
 }
 
-void salvareObiectInFisier()
+void salvareObiectInFisier(char* fisier, struct Pahar p)
 {
-	// adaugare la finalul fisierului elementul primit ca parametru
+	FILE* f = fopen(fisier, "a");
+	if (f == NULL) {
+		FILE* f = fopen(fisier, "w");
+	}
+
+	fprintf(f, "%f %f %f %s %f %d\n", p.ldi[0], p.ldi[1], p.ldi[2], p.material, p.pret, p.cod);
+	
+}
+
+void salvareVectorObiecteInFisier(char* fisier, struct Pahar* vp, int n)
+{
+	FILE* f = fopen(fisier, "a");
+	if (f == NULL) {
+		FILE* f = fopen(fisier, "w");
+	}
+	for (int i = 0; i < n; i++) {
+		fprintf(f, "%.2f %.2f %.2f %s %.2f %d\n", vp[i].ldi[0], vp[i].ldi[1], vp[i].ldi[2], vp[i].material,
+			vp[i].pret, vp[i].cod);
+	}
 }
 
 void main()
@@ -219,10 +237,17 @@ void main()
 		printf("Eroare deschidere fisier!");
 	}
 	else {
+
 		printf("Fisier deschis!");
-		printf("!\n");
-		citireDinFisier(f, vector_t3);
+
+	
+		citireDinFisier(f, vector_t3, 10);
+
+		salvareObiectInFisier("obiecte.txt", vector_t3[0]);
 		afisareVector(vector_t3, 10);
+		salvareVectorObiecteInFisier("obiecte_test.txt", vector_t3, 10);
+
+		dezalocareMemorie(vector_t3, 10);
 
 		fclose(f);
 	}
