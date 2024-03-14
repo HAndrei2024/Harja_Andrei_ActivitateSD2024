@@ -141,6 +141,18 @@ void citireDinFisier(FILE* f, struct Pahar* vector_t3, int n)
 	}
 }
 
+void numarLiniiFisier(FILE* f, int* nrLinii)
+{
+	int c = 0;
+	(*nrLinii) = 0;
+
+	for (c = getc(f); c != EOF; c = getc(f))
+		if (c == '\n') // Increment count if this character is newline 
+			(*nrLinii) = (*nrLinii) + 1;
+
+	fseek(f, 0, SEEK_SET);
+}
+
 void salvareObiectInFisier(char* fisier, struct Pahar p)
 {
 	FILE* f = fopen(fisier, "a");
@@ -227,29 +239,48 @@ void main()
 	//dezalocareMemorie(concat, l);
 	////free citire, creare, mutare, concatenare/copiere
 
-	printf("--- Task 3 ---\n"); //------------------------------------------------------------------------
+	//printf("--- Task 3 ---\n"); //------------------------------------------------------------------------
 
-	int x;
-	struct Pahar vector_t3[10];
+	//int x;
+	//struct Pahar vector_t3[10];
 
-	FILE* f = fopen("obiecte.txt", "r");
+	/*FILE* f = fopen("obiecte.txt", "r");
 	if (f == NULL) {
 		printf("Eroare deschidere fisier!");
 	}
-	else {
+	else {*/
 
 		printf("Fisier deschis!");
 
-	
-		citireDinFisier(f, vector_t3, 10);
+		//
+		//	citireDinFisier(f, vector_t3, 10);
 
-		salvareObiectInFisier("obiecte.txt", vector_t3[0]);
-		afisareVector(vector_t3, 10);
-		salvareVectorObiecteInFisier("obiecte_test.txt", vector_t3, 10);
+		//	salvareObiectInFisier("obiecte.txt", vector_t3[0]);
+		//	afisareVector(vector_t3, 10);
+		//	salvareVectorObiecteInFisier("obiecte_test.txt", vector_t3, 10);
 
-		dezalocareMemorie(vector_t3, 10);
+		//	dezalocareMemorie(vector_t3, 10);
 
-		fclose(f);
-	}
-	
+		//	fclose(f);
+		//}
+
+		printf("--- Task 4 ---\n"); //------------------------------------------------------------------------
+
+		struct Pahar* vector_t4;
+		int n;
+
+		FILE* f = fopen("obiecte.txt", "r");
+			if (f == NULL) {
+				printf("Eroare deschidere fisier!");
+			}
+			else {
+				numarLiniiFisier(f, &n);
+				printf("%d", n);
+
+				vector_t4 = (struct Pahar*)malloc(sizeof(struct Pahar) * n);
+
+				citireDinFisier(f, vector_t4, n);
+				afisareVector(vector_t4, n);
+			}
+
 }
