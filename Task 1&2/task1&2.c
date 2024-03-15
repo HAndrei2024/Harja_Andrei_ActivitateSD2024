@@ -54,10 +54,21 @@ void modificarePret(struct Pahar* p, float pret)
 
 void afisare(struct Pahar p)
 {
+	printf("!");
 	printf("Lungime, diametru si inaltime: %.2f %.2f %.2f\n", p.ldi[0], p.ldi[1], p.ldi[2]);
 	printf("Material: %s\n", p.material);
 	printf("Pret: %.2f\n", p.pret);
 	printf("Cod: %d\n", p.cod);
+
+}
+
+void afisareFaraNewLine(struct Pahar p)
+{
+	printf("Lungime, diametru si inaltime: %.2f %.2f %.2f || ", p.ldi[0], p.ldi[1], p.ldi[2]);
+	printf("Material: %s || ", p.material);
+	printf("Pret: %.2f || ", p.pret);
+	printf("Cod: %d || ", p.cod);
+	printf("\n");
 
 }
 
@@ -176,6 +187,130 @@ void salvareVectorObiecteInFisier(char* fisier, struct Pahar* vp, int n)
 	}
 }
 
+struct Pahar** copiereVectorInMatric1e(struct Pahar* vector, int lungimeVector,
+	int elementeMatricePerLinie[], float pret)
+{	
+	struct Pahar** matrice;
+	elementeMatricePerLinie[0] = 0;
+	elementeMatricePerLinie[1] = 0;
+
+	//matricea va avea 2 linii, in functie de pret (>5 si <=5)
+	for (int i = 0; i < lungimeVector; i++)
+	{
+		if (vector[i].pret > 5) elementeMatricePerLinie[1]++;
+		else elementeMatricePerLinie[0]++;
+	}
+	matrice = (struct Pahar**)malloc(sizeof(struct Pahar*) * 2);
+
+	for (int i = 0; i < 2; i++)
+	{
+		matrice[i] = (struct Pahar*)malloc(sizeof(struct Pahar) * elementeMatricePerLinie[i]);
+	}
+
+	
+	printf("%d-------------------------------------------\n", elementeMatricePerLinie[1]);
+
+	return matrice;
+}
+
+void copiereVectorInMatrice(struct Pahar* vector, int* nrElementeVector, struct Pahar*** matrice,
+	int* nrElementeMatricePerLinie, float pret)
+{
+	for (int i = 0; i < nrElementeVector; i++)
+	{
+		if (vector[i].pret > pret) nrElementeMatricePerLinie[1]++;
+		else nrElementeMatricePerLinie[0]++;
+	}
+
+	(*matrice) = (struct Pahar**)malloc(sizeof(struct Pahar*) * 2);
+	for (int i = 0; i < 2; i++)
+	{
+		(*matrice)[i] = (struct Pahar*)malloc(sizeof(struct Pahar) * nrElementeMatricePerLinie[i]);
+	}
+
+	int j = 0;
+	int k = 0;
+	for (int i = 0; i < nrElementeVector; i++)
+	{
+		if (vector[i].pret > pret)
+		{
+			copiere(vector, i, (*matrice)[1], k);
+			k++;
+		}
+		else
+		{
+			copiere(vector, i, (*matrice)[0], j);
+			j++;
+		}
+	}
+
+}
+
+void afisareMatrice(struct Pahar** matrice, int* nrElementeMatricePerLinie)
+{
+	for (int i = 0; i < 2; i++)
+	{	
+		printf("\n ---- Vector %d: ---- \n", i);
+		for (int j = 0; j < nrElementeMatricePerLinie[i]; j++)
+			afisareFaraNewLine(matrice[i][j]);
+		printf(" ---- ----\n");
+	}
+}
+
+void sortareIndexi(int* vector, int n, int* indexiVectorNrElementeMatricePerLinie)
+{
+	int aux;
+	for(int i=0; i<n-1; i++)
+		for(int j = i+1; j<n; j++)
+			if (vector[i] > vector[j])
+			{
+				aux = indexiVectorNrElementeMatricePerLinie[i];
+				indexiVectorNrElementeMatricePerLinie[i] = indexiVectorNrElementeMatricePerLinie[j];
+				indexiVectorNrElementeMatricePerLinie[j] = aux;
+			}
+}
+
+void sortareVector(int* vector, int n)
+{
+	int aux;
+	for (int i = 0; i < n - 1; i++)
+		for (int j = i + 1; j < n; j++)
+			if (vector[i] > vector[j])
+			{
+				aux = vector[i];
+				vector[i] = vector[j];
+				vector[j] = aux;
+			}
+}
+
+struct Pahar** sortareLiniiMatriceDupaNrElemente(struct Pahar** matriceInitiala, 
+	int* nrElementeMatricePerLinie)
+{
+	int indexiVectorNrElementeMatricePerLinie[2];
+	indexiVectorNrElementeMatricePerLinie[0] = 0;
+	indexiVectorNrElementeMatricePerLinie[1] = 1;
+
+	sortareIndexi(nrElementeMatricePerLinie, 2, indexiVectorNrElementeMatricePerLinie);
+
+	struct Pahar** matriceFinala;
+
+	matriceFinala = (struct Pahar**)malloc(sizeof(struct Pahar*) * 2);
+	for (int i = 0; i < 2; i++)
+		matriceFinala[i] = (struct Pahar*)malloc(sizeof(struct Pahar) * nrElementeMatricePerLinie[indexiVectorNrElementeMatricePerLinie[i]]);
+
+	for (int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < nrElementeMatricePerLinie[i]; j++)
+		{
+			copiere(matriceInitiala[i], j, matriceFinala[indexiVectorNrElementeMatricePerLinie[i]], j);
+		}
+	}
+
+	sortareVector(nrElementeMatricePerLinie, 2);
+
+	return matriceFinala;
+}
+
 void main()
 {
 	//struct Pahar p;
@@ -267,20 +402,33 @@ void main()
 		printf("--- Task 4 ---\n"); //------------------------------------------------------------------------
 
 		struct Pahar* vector_t4;
-		int n;
+		int nrElementeVector;
+		struct Pahar** matrice;
+		int* nrElementeMatricePerLinie;
+		nrElementeMatricePerLinie = (int*)malloc(sizeof(int) * 2);
+		nrElementeMatricePerLinie[0] = 0;
+		nrElementeMatricePerLinie[1] = 0;
 
 		FILE* f = fopen("obiecte.txt", "r");
-			if (f == NULL) {
-				printf("Eroare deschidere fisier!");
-			}
-			else {
-				numarLiniiFisier(f, &n);
-				printf("%d", n);
+		if (f == NULL) {
+			printf("Eroare deschidere fisier!");
+		}
+		else {
+			numarLiniiFisier(f, &nrElementeVector);
 
-				vector_t4 = (struct Pahar*)malloc(sizeof(struct Pahar) * n);
+			vector_t4 = (struct Pahar*)malloc(sizeof(struct Pahar) * nrElementeVector);
 
-				citireDinFisier(f, vector_t4, n);
-				afisareVector(vector_t4, n);
-			}
+			int k = 0;
+			int j = 0;
+			citireDinFisier(f, vector_t4, nrElementeVector);
+			//afisareVector(vector_t4, nrElementeVector);
+			copiereVectorInMatrice(vector_t4, nrElementeVector, &matrice,
+				nrElementeMatricePerLinie, 5);
+			afisareMatrice(matrice, nrElementeMatricePerLinie);
+			
+			matrice = sortareLiniiMatriceDupaNrElemente(matrice, nrElementeMatricePerLinie);
+
+			afisareMatrice(matrice, nrElementeMatricePerLinie);
+		}
 
 }

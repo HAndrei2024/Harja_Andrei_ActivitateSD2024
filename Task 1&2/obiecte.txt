@@ -8,4 +8,7 @@
 1 2 3 plastic 2 9
 1 7 3 plastic 2 11
 1 8 3 sticla 2 12
-1 9 3 sticla 1 12
+1 9 3 sticla 10 13
+1 9 3 sticla 10 14
+1 9 3 sticla 10 15
+1 9 3 sticla 10 16
