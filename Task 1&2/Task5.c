@@ -243,75 +243,75 @@ void interschimbareElementeInLista(struct Nod** head, int nrNoduri, int pozitie1
 	nodAnterior2->link = nodDeSchimbat1;
 }
 
-void inserareNod(struct Nod** head, struct Nod* nodNou, int indexInserare,
-	int nrNoduri)
-{
-	struct Nod* pointer = (*head);
-	struct Nod* aux;
-	aux = (struct Nod*)malloc(sizeof(struct Nod));
-	int k = 0;
-
-	if (indexInserare == 0)
-	{	
-		aux->link = (*head);
-		(*head) = nodNou;
-		nodNou->link = aux->link;
-
-		return;
-	}
-	if (indexInserare == nrNoduri - 1)
-	{
-		while (pointer->link != NULL)
-		{
-
-			pointer = pointer->link;
-		}
-
-		pointer->link = nodNou;
-
-		return;
-	}
-	struct Nod* nodAnterior = NULL;
-
-	while (k <= indexInserare)
-	{
-		nodAnterior = pointer;
-		pointer = pointer->link;
-		k++;
-	}
-	nodNou->link = pointer;
-	nodAnterior->link = nodNou;
-}
-
-void aflaIndexPentruInserare(struct Nod* head, struct Nod* nodNou, 
-	int* index)
-{
-	int k = 0;
-	struct Nod* pointer = head;
-	struct Nod* aux = NULL;
-
-	if (nodNou->valoare <= head->valoare)
-	{
-		/*aux->link = pointer->link;
-		(*head) = nodNou;
-		nodNou->link = aux->link;
-
-		return;*/
-		//??pointer->valoare = NULL;
-		(*index) = 0;
-		return;
-	}
-
-	while (pointer->link != NULL)
-	{
-		if (nodNou->valoare <= pointer->valoare)
-		{
-			(*index) = k;
-		}
-		pointer = pointer->link;
-		k++;
-	}
-}
+//void inserareNod(struct Nod** head, struct Nod* nodNou, int indexInserare,
+//	int nrNoduri)
+//{
+//	struct Nod* pointer = (*head);
+//	struct Nod* aux;
+//	aux = (struct Nod*)malloc(sizeof(struct Nod));
+//	int k = 0;
+//
+//	if (indexInserare == 0)
+//	{	
+//		aux->link = (*head);
+//		(*head) = nodNou;
+//		nodNou->link = aux->link;
+//
+//		return;
+//	}
+//	if (indexInserare == nrNoduri - 1)
+//	{
+//		while (pointer->link != NULL)
+//		{
+//
+//			pointer = pointer->link;
+//		}
+//
+//		pointer->link = nodNou;
+//
+//		return;
+//	}
+//	struct Nod* nodAnterior = NULL;
+//
+//	while (k <= indexInserare)
+//	{
+//		nodAnterior = pointer;
+//		pointer = pointer->link;
+//		k++;
+//	}
+//	nodNou->link = pointer;
+//	nodAnterior->link = nodNou;
+//}
+//
+//void aflaIndexPentruInserare(struct Nod* head, struct Nod* nodNou, 
+//	int* index)
+//{
+//	int k = 0;
+//	struct Nod* pointer = head;
+//	struct Nod* aux = NULL;
+//
+//	if (nodNou->valoare <= head->valoare)
+//	{
+//		/*aux->link = pointer->link;
+//		(*head) = nodNou;
+//		nodNou->link = aux->link;
+//
+//		return;*/
+//		//??pointer->valoare = NULL;
+//		(*index) = 0;
+//		return;
+//	}
+//
+//	while (pointer->link != NULL)
+//	{
+//		if (nodNou->valoare <= pointer->valoare)
+//		{
+//			(*index) = k;
+//		}
+//		pointer = pointer->link;
+//		k++;
+//	}
+//}
 
 void sortarePrinInserare(char* numeFisier, struct Nod** head)
 {
@@ -350,16 +350,41 @@ void sortarePrinInserare(char* numeFisier, struct Nod** head)
 			}
 			else
 			{
-				aflaIndexPentruInserare(head, nodNou, &indexInserare);
-				inserareNod(head, nodNou, indexInserare, nrNoduri);
-				nrNoduri++;
-			}
+				struct Nod* pointer = (*head);
+				struct Nod* nodAnterior;
+				nodAnterior = (struct Nod*)malloc(sizeof(struct Nod));
+				int done = 0;
 
+				while (done == 0 && pointer != NULL)
+				{
+					if (n < pointer->valoare)
+					{
+						done = 1;
+					}
+					if (done == 0)
+					{
+						nodAnterior = pointer;
+						pointer = pointer->link;
+					}
+				}
+				if (pointer == (*head))
+				{
+					nodAnterior->link = (*head);
+					(*head) = nodNou;
+					nodNou->link = nodAnterior->link;
+				}
+				else if(pointer != NULL)
+				{
+					nodNou->link = pointer;
+					nodAnterior->link = nodNou;
+				}
+				else if (pointer == NULL)
+				{
+					nodAnterior->link = nodNou;
+				}
+			}
 		}
 	}
-	//verificare lista goala
-	//parcurg lista si ma opresc la elementul > nod citit
-	//inserez elementul
 }
 
 void main()
@@ -372,10 +397,11 @@ void main()
 	//citesteListaDinFisier("liste.txt", &head, &nrNoduri);
 	//printList(head);
 	
-	//salvareInVectorElementeCuOConditie(head, &vector, &nrElementeVector, 2);
-	//printf("%d\n", vector[2].valoare);
+	//salvareInVectorElementeCuOConditie(head, &vector, &nrElementeVector, 1);
+	//for(int i=0; i<nrElementeVector; i++)
+		//printf("%d\n", vector[i].valoare);
 
-	//interschimbareElementeInLista(&head, nrNoduri, 3, 4);
+	//interschimbareElementeInLista(&head, nrNoduri, 1, 2);
 	//printList(head);
 
 	sortarePrinInserare("liste.txt", &head);
