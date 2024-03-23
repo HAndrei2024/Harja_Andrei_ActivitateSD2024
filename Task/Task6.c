@@ -4,6 +4,7 @@
 typedef struct Date Date;
 typedef struct Nod Nod;
 typedef struct Vecini Vecini;
+typedef struct NodSimplu NodSimplu;
 
 struct Date
 {
@@ -15,6 +16,12 @@ struct Nod
 	Nod* prev;
 	Date date;
 	Nod* next;
+};
+
+struct NodSimplu
+{
+	Date date;
+	NodSimplu* next;
 };
 
 struct Vecini
@@ -72,6 +79,18 @@ void citireLista(char* numeFisier, Nod** head, Nod** tail, int* nrElementeLista)
 		}
 	}
 	
+}
+
+void printListSimplu(NodSimplu* head)
+{
+	NodSimplu* temp = head;
+
+	while (temp != NULL)
+	{
+		printf("%d->", temp->date.valoare);
+		temp = temp->next;
+	}
+	printf("NULL\n");
 }
 
 void printListHead(Nod* head)
@@ -214,18 +233,282 @@ void sortarePrinInserare(char* numeFisier, Nod** head, Nod** tail, int* nrElemen
 	}
 }
 
+void adaugaInListaSimpla(NodSimplu** head, Date date)
+{
+	NodSimplu* pointer = (*head);
+	NodSimplu* nodNou;
+	nodNou = (NodSimplu*)malloc(sizeof(NodSimplu));
+	nodNou->next = NULL;
+	nodNou->date = date;
+
+	if (pointer == NULL)
+	{
+		(*head) = nodNou;
+	}
+	else
+	{
+		while (pointer->next != NULL)
+		{
+			pointer = pointer->next;
+		}
+
+		pointer->next = nodNou;
+	}
+}
+
+NodSimplu* copiereInListaSimpla(Nod* head, int valoareData)
+{
+	//parcurg el, daca gasesc il adaug
+	Nod* pointer = head;
+	NodSimplu* headSimplu;
+	headSimplu = (NodSimplu*)malloc(sizeof(NodSimplu));
+	headSimplu = NULL;
+
+	while (pointer != NULL)
+	{
+		if (pointer->date.valoare > valoareData)
+		{
+			Date date = pointer->date;
+
+			adaugaInListaSimpla(&headSimplu, date);
+		}
+		pointer = pointer->next;
+	}
+
+	return headSimplu;
+}
+
+void aranjarePozitiiCrescator(int* poz1, int* poz2)
+{
+	if (poz1 > poz2)
+	{
+		int aux = *poz1;
+		*poz1 = *poz2;
+		*poz2 = aux;
+	}
+}
+
+void interschimbareElemente(Nod** head, Nod** tail ,int nrElementeLista, int pozitie1, int pozitie2)
+{
+	aranjarePozitiiCrescator(&pozitie1, &pozitie2);
+
+	if (pozitie2 > nrElementeLista - 1)
+	{
+		printf("Pozitie prea mare!");
+	}
+	else
+	{
+		if (pozitie1 == 0 && pozitie2 == nrElementeLista - 1)
+		{
+			(*head)->prev = (*tail)->prev;
+			(*tail)->next = (*head)->next;
+
+			(*head)->next->prev = (*tail);
+			(*tail)->prev->next = (*head);
+
+			Nod* aux;
+			aux = (Nod*)malloc(sizeof(Nod));
+			aux->next = (*head);
+
+			(*head) = (*tail);
+			(*tail) = aux->next;
+
+			(*head)->prev = NULL;
+			(*tail)->next = NULL;
+		}
+		else if (pozitie1 == 0)
+		{
+			if (pozitie2 == 1)
+			{
+				Nod* pointer = (*head)->next;
+
+				Nod aux;
+				aux.next = (*head);
+
+				(*head)->prev = pointer;
+				(*head)->next = pointer->next;
+
+				pointer->next->prev = (*head);
+
+				pointer->prev = NULL;
+				pointer->next = (*head);
+
+				(*head) = pointer;
+			}
+			else
+			{
+				Nod* pointer = (*head);
+				int indexPozitie = 0;
+
+				while (indexPozitie < pozitie2)
+				{
+					pointer = pointer->next;
+					indexPozitie++;
+				}
+
+				Nod aux;
+				aux.next = (*head)->next;
+				aux.prev = (*head);
+
+				(*head)->next->prev = pointer;
+				(*head)->prev = pointer->prev;
+				(*head)->next = pointer->next;
+
+				pointer->prev->next = (*head);
+				pointer->next->prev = (*head);
+				pointer->prev = NULL;
+				pointer->next = aux.next;
+
+
+				(*head) = pointer;
+			}
+		}
+		else if (pozitie2 == nrElementeLista - 1)
+		{
+			if (pozitie1 == nrElementeLista - 2)
+			{
+				Nod* pointer = (*tail)->prev;
+
+				Nod aux;
+				aux.prev = (*tail);
+
+				(*tail)->prev = pointer->prev;
+				(*tail)->next = pointer;
+
+				pointer->prev->next = (*tail);
+
+				pointer->next = NULL;
+				pointer->prev = (*tail);			
+
+				(*tail) = pointer;
+			}
+			else
+			{
+				Nod* pointer = (*head);
+				int indexPozitie = 0;
+
+				while (indexPozitie < pozitie1)
+				{
+					pointer = pointer->next;
+					indexPozitie++;
+				}
+
+				Nod aux;
+				aux.prev = (*tail)->prev;
+				aux.next = (*tail);
+
+				(*tail)->prev->next = pointer;
+				(*tail)->next = pointer->next;
+				(*tail)->prev = pointer->prev;
+
+				pointer->prev->next = (*tail);
+				pointer->next->prev = (*tail);
+				pointer->next = NULL;
+				pointer->prev = aux.prev;
+
+				(*tail) = pointer;
+			}
+		}
+		else
+		{
+			if (pozitie2 - pozitie1 == 1)
+			{
+				Nod* pointer1 = (*head);
+				Nod* pointer2 = (*head);
+				int indexPozitie = 0;
+
+				while (indexPozitie < pozitie1)
+				{
+					pointer1 = pointer1->next;
+					indexPozitie++;
+				}
+
+				indexPozitie = 0;
+
+				while (indexPozitie < pozitie2)
+				{
+					pointer2 = pointer2->next;
+					indexPozitie++;
+				}
+				printf("%d %d\n", pointer1->date.valoare, pointer2->date.valoare);
+				Nod aux1;
+				aux1.prev = pointer1->prev;
+				aux1.next = pointer1;
+
+				pointer1->prev->next = pointer2;
+				pointer2->next->prev = pointer1;
+
+				pointer1->next = pointer2->next;
+				pointer1->prev = pointer2;
+
+				pointer2->next = aux1.next;
+				pointer2->prev = aux1.prev;
+			}
+			else
+			{
+				Nod* pointer1 = (*head);
+				Nod* pointer2 = (*head);
+				int indexPozitie = 0;
+
+				while (indexPozitie < pozitie1)
+				{
+					pointer1 = pointer1->next;
+					indexPozitie++;
+				}
+
+				indexPozitie = 0;
+
+				while (indexPozitie < pozitie2)
+				{
+					pointer2 = pointer2->next;
+					indexPozitie++;
+				}
+
+				Nod aux1;
+				aux1.next = pointer1->next;
+				aux1.prev = pointer1->prev;
+
+				pointer1->prev->next = pointer2;
+				pointer1->next->prev = pointer2;
+				pointer2->next->prev = pointer1;
+				pointer2->prev->next = pointer1;
+
+				pointer1->next = pointer2->next;
+				pointer1->prev = pointer2->prev;
+
+				pointer2->next = aux1.next;
+				pointer2->prev = aux1.prev;
+			}
+			
+		}
+	}
+}
+
 void main()
 {
 	Nod* head = NULL;
 	Nod* tail = NULL;
 	int nrElementeLista = 0;
 
-	//citireLista("liste.txt", &head, &tail, &nrElementeLista);
-	//printListHead(head);
+	citireLista("liste.txt", &head, &tail, &nrElementeLista);
+	printListHead(head);
+
+	interschimbareElemente(&head, &tail, nrElementeLista, 2, 3);
+	printListHead(head);
+	printListTail(tail);
 
 	//stergeNod(&head, &tail, &nrElementeLista, 0);
 	//printListTail(tail);
 
-	sortarePrinInserare("liste.txt", &head, &tail, &nrElementeLista);
-	printListHead(head);
+	//sortarePrinInserare("liste.txt", &head, &tail, &nrElementeLista);
+	//printListHead(head);
+
+	/*NodSimplu* headSimplu;
+	headSimplu = (NodSimplu*)malloc(sizeof(NodSimplu));
+
+	headSimplu = copiereInListaSimpla(head, 0);
+
+	head->date.valoare = 10;
+	printf("%d", head->date.valoare);
+	printListSimplu(headSimplu);*/
 }
