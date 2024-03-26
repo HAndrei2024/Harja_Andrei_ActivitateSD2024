@@ -3,6 +3,7 @@
 
 typedef struct CafeneaMea Cafenea; //asta este un alias. nu o sa mai treb sa scrii "struct CafeneaMea", ci doar "Cafenea"
 typedef struct Nod Nod;
+typedef struct ListaDubla ListaDubla;
 
 struct CafeneaMea {
     char* nume;
@@ -11,8 +12,14 @@ struct CafeneaMea {
 };
 
 struct Nod {
-    Cafenea info;
-    Nod* next;
+    Cafenea cafenea;
+    Nod* anterior;
+    Nod* urmator;
+};
+
+struct ListaDubla {
+    Nod* cap;
+    Nod* coada;
 };
 
 Cafenea initializareCafenea(const char* nume, int nrLocuri, float suprafata) {
@@ -25,14 +32,6 @@ Cafenea initializareCafenea(const char* nume, int nrLocuri, float suprafata) {
     return cafenea;
 }
 
-Nod* inserareInceput(Cafenea c, Nod* cap)
-{
-    Nod* nou = malloc(sizeof(Nod));
-    nou->next = cap;
-    nou->info = initializareCafenea(c.nume, c.nrLocuri, c.suprafata);
-
-    return nou;
-}
 
 void afisareCafenea(Cafenea c)
 {
@@ -40,73 +39,121 @@ void afisareCafenea(Cafenea c)
         c.nume, c.nrLocuri, c.suprafata);
 }
 
-void afisareCafenele(Nod* lista)
+void inserareInceput(ListaDubla* listaDubla, Cafenea cafenea)
 {
-
-    while (lista != NULL)
+    Nod* nod = malloc(sizeof(Nod));
+    nod->anterior = NULL;
+    nod->cafenea = cafenea;
+    nod->urmator = listaDubla->cap;
+    if (listaDubla->cap != NULL)
     {
-        afisareCafenea(lista->info);
-        lista = lista->next;
+        listaDubla->cap->anterior = nod;
+        listaDubla->cap = nod;
     }
+    else
+    {
+        listaDubla->coada = nod;
+    }
+    listaDubla->cap = nod;
 }
 
-//numele cafenelei cu densitatea cea mai mica
-char* numeCafeneaDensitateMinima(Nod* lista)
+void afisareLista(ListaDubla listaDubla)
 {
-    if (lista != NULL)
+    Nod* temp = listaDubla.cap;
+
+    while (temp != NULL)
     {
-        if (lista->info.suprafata != 0)
+        afisareCafenea(temp->cafenea);
+        temp = temp->urmator;
+    }
+}
+void afisareListaCoada(ListaDubla listaDubla)
+{
+    Nod* temp = listaDubla.coada;
+
+    while (temp != NULL)
+    {
+        afisareCafenea(temp->cafenea);
+        temp = temp->anterior;
+    }
+}
+//stergere cafenea dupa nume
+ListaDubla stergeCafeneaDupaNume(ListaDubla listaDubla, const char* nume)
+{
+    if (nume == NULL)
+    {
+        return listaDubla;
+    }
+    Nod* nod = listaDubla.cap;
+
+    while (nod && strcmp(nod->cafenea.nume, nume) != 0)
+    {
+        nod = nod->urmator;
+    }
+    if (nod != NULL)
+    {
+        if (nod->urmator == NULL && nod->anterior == NULL)
         {
-            float minim = lista->info.nrLocuri / lista->info.suprafata;
-            Nod* adresa = lista;
-
-            while (lista != NULL)
-            {
-                float densitate = lista->info.nrLocuri / lista->info.suprafata;
-
-                if (densitate < minim)
-                {
-                    minim = densitate;
-                    adresa = lista;
-                }
-                lista = lista->next;
-            }
-            char* nume;
-            nume = (char*)malloc(sizeof(char) * strlen(adresa->info.nume) + 1);
-            strcpy(nume, adresa->info.nume);
-
-            return nume;
+            listaDubla.cap = NULL;
+            listaDubla.coada = NULL;
         }
+        else 
+        {
+            if (nod->anterior == NULL)
+            {
+                listaDubla.cap = nod->urmator;
+                listaDubla.cap->anterior = NULL;
+            }
+            else if (nod->urmator == NULL)
+            {
+                listaDubla.coada = nod->anterior;
+                listaDubla.coada->urmator = NULL;
+            }
+            else
+            {
+                nod->anterior->urmator = nod->urmator;
+                nod->urmator->anterior = nod->anterior;
+            }
+        }
+        free(nod->cafenea.nume);
+        free(nod);
     }
+
+    return listaDubla;
 }
 
-void stergeLista(Nod** nod)
+ListaDubla stergeLista(ListaDubla listaDubla)
 {
-    while (*nod != NULL)
+    while (listaDubla.cap != NULL && listaDubla.cap->urmator != NULL)
     {
-        Nod* aux = (*nod);
-
-        (*nod) = (*nod)->next;
-        free(aux->info.nume);
-        free(aux);
+        free(listaDubla.cap->cafenea.nume);
+        Nod* temp = listaDubla.cap;
+        listaDubla.cap = listaDubla.cap->urmator;
+        free(temp);
     }
+    listaDubla.cap = NULL;
+    listaDubla.coada = NULL;
+
+    return listaDubla;
 }
 
-void inserareFinal(Nod** lista, Cafenea c)
-{
-    Nod* pointer = (*lista);
-    //verificare daca lista e goala
+//calc nr locuri total
 
-    while (pointer->next != NULL)
+int nrLocuriTotal(ListaDubla listaDubla)
+{
+    if (listaDubla.cap == NULL)
     {
-        pointer = pointer->next;
+        return 0;
+    }
+    Nod* temp = listaDubla.coada;
+    int nrLocuri = 0;
+    while (temp != NULL)
+    {
+        nrLocuri += temp->cafenea.nrLocuri;
+        temp = temp->anterior;
     }
 
-    Nod* nodNou = (Nod*)malloc(sizeof(Nod));
-    nodNou->info = initializareCafenea(c.nume, c.nrLocuri, c.suprafata);
-    nodNou->next = NULL;
-
-    pointer->next = nodNou;
+    return nrLocuri;
 }
 
 void main() {
@@ -115,24 +162,28 @@ void main() {
     Cafenea cafenea1 = initializareCafenea("Teds", 15, 22);
     Cafenea cafenea2 = initializareCafenea("StarBucks", 10, 10);
 
-    cap = inserareInceput(cafenea, cap);
-    cap = inserareInceput(cafenea1, cap);
-    cap = inserareInceput(cafenea2, cap);
+    ListaDubla listaDubla;
+    listaDubla.cap = NULL;
+    listaDubla.coada = NULL;
 
-    afisareCafenele(cap);
+    inserareInceput(&listaDubla, cafenea);
+    inserareInceput(&listaDubla, cafenea1);
+    inserareInceput(&listaDubla, cafenea2);
 
-    char* nume = numeCafeneaDensitateMinima(cap);
-    printf("%s", nume);
+    //afisareLista(listaDubla);
+    //afisareListaCoada(listaDubla);
 
-    inserareFinal(&cap, cafenea);
-    afisareCafenele(cap);
+    //listaDubla = stergeCafeneaDupaNume(listaDubla, "StarBucks");
+    //afisareLista(listaDubla);
 
-    stergeLista(&cap);
-    afisareCafenele(cap);
+    /*listaDubla = stergeCafeneaDupaNume(listaDubla, "Tucano");
+    afisareLista(listaDubla);
 
-    free(cafenea.nume);
-    free(cafenea1.nume);
-    free(cafenea2.nume);
+    listaDubla = stergeCafeneaDupaNume(listaDubla, "Sb");*/
 
-    free(nume);
+    //listaDubla = stergeLista(listaDubla);
+    afisareLista(listaDubla);
+   
+    int nrLocuri = nrLocuriTotal(listaDubla);
+    printf("%d", nrLocuri);
 }
