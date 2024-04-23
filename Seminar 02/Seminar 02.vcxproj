@@ -130,7 +130,11 @@
     <ClCompile Include="Seminar8.c" />
     <ClCompile Include="Seminar04.c" />
     <ClCompile Include="Seminar5.c" />
+    <ClCompile Include="Seminar10.c" />
     <ClCompile Include="Source.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="date.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
